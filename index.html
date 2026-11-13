@@ -161,30 +161,30 @@ input.err{
 
 /* ===== PUFFER-PARTY KREIS-ARENA & KUGELFISCH ===== */
 .arena-card{
-  padding:14px 12px 18px;
+  padding:16px 12px 18px;
   overflow:hidden;
 }
 .arena-wrap{
   position:relative;
   width:100%;
-  max-width:350px;
+  max-width:440px;
   aspect-ratio:1/1;
-  margin:6px auto 12px;
+  margin:4px auto 14px;
 }
 .arena-ring{
   position:absolute;
-  inset:16%;
+  inset:15%;
   border-radius:50%;
   border:1.5px dashed rgba(125,249,255,.24);
-  background:radial-gradient(circle, rgba(125,249,255,.08) 0%, rgba(5,10,20,0) 72%);
+  background:radial-gradient(circle, rgba(125,249,255,.09) 0%, rgba(5,10,20,0) 72%);
   pointer-events:none;
 }
 .puffer-center{
   position:absolute;
   left:50%;
   top:50%;
-  width:140px;
-  height:140px;
+  width:170px;
+  height:170px;
   transform:translate(-50%,-50%);
   display:flex;
   align-items:center;
@@ -204,7 +204,7 @@ input.err{
   height:100%;
   transform:scale(.58);
   transition:transform .12s linear, filter .2s ease;
-  filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.6));
 }
 #puffer-body.wobble{
   animation:pufferWobble .14s infinite alternate ease-in-out;
@@ -226,10 +226,10 @@ input.err{
   left:50%;
   top:50%;
   transform:translate(-50%,-50%) scale(0);
-  font-size:2.1rem;
+  font-size:2.3rem;
   font-weight:900;
   color:#ff5c8a;
-  text-shadow:0 0 18px rgba(255,92,138,.8), 0 3px 0 #050a14;
+  text-shadow:0 0 18px rgba(255,92,138,.85), 0 3px 0 #050a14;
   letter-spacing:.06em;
   pointer-events:none;
   opacity:0;
@@ -246,29 +246,35 @@ input.err{
 .arena-seat{
   position:absolute;
   transform:translate(-50%,-50%);
-  min-width:86px;
-  max-width:112px;
-  padding:6px 8px;
-  border-radius:12px;
-  background:rgba(8,19,35,.92);
+  min-width:92px;
+  max-width:120px;
+  padding:6px 8px 7px;
+  border-radius:14px;
+  background:rgba(8,19,35,.94);
   border:1.5px solid rgba(125,249,255,.22);
   text-align:center;
   font-size:.82rem;
-  line-height:1.25;
+  line-height:1.2;
   transition:all .25s ease;
   z-index:2;
-  box-shadow:0 4px 12px rgba(0,0,0,.4);
+  box-shadow:0 4px 14px rgba(0,0,0,.45);
 }
 .arena-seat.active{
   border-color:var(--glow);
   background:rgba(13,44,68,.98);
-  box-shadow:0 0 16px rgba(125,249,255,.45);
-  transform:translate(-50%,-50%) scale(1.08);
+  box-shadow:0 0 18px rgba(125,249,255,.5);
+  transform:translate(-50%,-50%) scale(1.09);
   z-index:4;
 }
 .arena-seat.out{
-  opacity:.42;
+  opacity:.4;
   border-color:rgba(255,255,255,.1);
+}
+.seat-fish{
+  width:42px;
+  height:26px;
+  margin:0 auto 2px;
+  display:block;
 }
 .seat-name{
   display:block;
@@ -282,14 +288,24 @@ input.err{
 .seat-hearts{
   display:block;
   color:var(--heart);
-  font-size:.8rem;
+  font-size:.82rem;
   letter-spacing:1px;
   margin-top:2px;
 }
-.seat-pts{
+.life-bar{
+  display:flex;
+  width:100%;
+  height:7px;
+  background:rgba(255,255,255,.12);
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:5px;
+  border:1px solid rgba(255,255,255,.08);
+}
+.life-bar span{
   display:block;
-  color:var(--muted);
-  font-size:.72rem;
+  height:100%;
+  transition:width .35s cubic-bezier(.22,1,.36,1);
 }
 .turn-counter{
   display:inline-flex;
@@ -761,7 +777,20 @@ function endeSolo(){
 
 
 /* --- PUFFER-PARTY: ONLINE-MULTIPLAYER (Krillion-Kreis-Modus) --- */
-const PEER_PREFIX='tiefgang-party-',TURN_MS=22000,POP_PAUSE_MS=1800,MAX_SPIELER=8;
+const PEER_PREFIX='tiefgang-party-',TURN_MS=22000,POP_PAUSE_MS=1800,MAX_SPIELER=8,LIFE_GOAL=250;
+const FISH_PAL=['#4cc9f0','#52e0a2','#ff9f1c','#c77dff','#ff5c8a','#ffd166','#38b000','#f72585'];
+function playerFishSvg(idx){
+  const col=FISH_PAL[idx%FISH_PAL.length];
+  return `<svg class="seat-fish" viewBox="0 0 60 36" aria-hidden="true">
+    <path d="M44 18 L57 8 L54 18 L57 28 Z" fill="${col}" opacity=".85"/>
+    <path d="M24 7 Q30 1 35 8 Z" fill="${col}" opacity=".8"/>
+    <ellipse cx="26" cy="18" rx="19" ry="11" fill="${col}"/>
+    <ellipse cx="24" cy="21" rx="12" ry="5" fill="#ffffff" opacity=".22"/>
+    <circle cx="15" cy="15" r="3.4" fill="#ffffff"/>
+    <circle cx="14.2" cy="15" r="1.7" fill="#050a14"/>
+    <path d="M26 16 Q30 18 26 21" stroke="#050a14" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".45"/>
+  </svg>`;
+}
 const TURN_EIGEN=[];
 const ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},
   {urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'},...TURN_EIGEN];
@@ -829,7 +858,7 @@ function zeigePartyLobby(code){
   partyVerlassen();
   const nm=load('tg_pname')||('Taucher '+(Math.floor(Math.random()*899)+100));
   app.innerHTML=`<h1>🐡 Puffer-Party</h1>
-  <p class="lead">Alle sitzen im Kreis um den Kugelfisch! Der Fisch schaut den Spieler an, der dran ist, und bläst sich auf. Wenn die Zeit abläuft, <strong>platzt er (POP!)</strong> und man verliert ein Leben. Nach 4–6 Antworten wechselt die Frage!</p>
+  <p class="lead">Alle Fische sitzen im Kreis um den Kugelfisch! Der Fisch schaut den Spieler an, der dran ist, und bläst sich auf. Wenn die Zeit abläuft, <strong>platzt er (POP!)</strong> und man verliert ein Leben. Nach 4–6 Drannahmen wechselt die Frage!</p>
   <div class="card">
     <label class="muted" for="pname">Dein Spielername</label>
     <input id="pname" type="text" value="${esc(nm)}" maxlength="16" autocomplete="off">
@@ -860,7 +889,7 @@ function erstelleParty(){
         code,
         status:'lobby',
         lives:3,
-        players:[{id:PID,name,hearts:3,pts:0,alive:true,online:true}],
+        players:[{id:PID,name,hearts:3,pts:0,barSegs:[],alive:true,online:true}],
         turn:0,
         qi:0,
         qCount:0,
@@ -957,7 +986,7 @@ function hostMsg(m,c){
     if(!p){
       if(PS.status!=='lobby')return c.send({t:'ERR',m:'Das Spiel läuft schon. Warte auf die nächste Runde.'});
       if(P.length>=MAX_SPIELER)return c.send({t:'ERR',m:`Der Raum ist voll (max. ${MAX_SPIELER} Spieler).`});
-      p={id:m.pid,name:uniqueName(String(m.name||'Taucher').slice(0,16)),hearts:PS.lives,pts:0,alive:true,online:true};
+      p={id:m.pid,name:uniqueName(String(m.name||'Taucher').slice(0,16)),hearts:PS.lives,pts:0,barSegs:[],alive:true,online:true};
       P.push(p);
     }
     p.online=true;c.pid=m.pid;NET.conns[m.pid]=c;bc();return;
@@ -994,7 +1023,7 @@ function finish(){
 }
 function resetSpiel(){
   clearTimeout(popTimeout);
-  PS.players.forEach(p=>{p.hearts=PS.lives;p.pts=0;p.alive=true});
+  PS.players.forEach(p=>{p.hearts=PS.lives;p.pts=0;p.barSegs=[];p.alive=true});
   PS.status='play';PS.used=[];PS.played=[];PS.winner=null;PS.turn=0;PS.popping=false;
   PS.msg='Der Kugelfisch ist bereit – los geht’s!';
   neueFrage();setTurn();bc();
@@ -1010,6 +1039,22 @@ function nochmal(){
   PS.players=PS.players.filter(p=>p.online);
   if(PS.players.length<2){PS.status='lobby';PS.msg='';bc()}else resetSpiel();
 }
+function addBarPoints(p,pts,color){
+  if(!p.barSegs)p.barSegs=[];
+  let rem=pts;
+  while(rem>0){
+    const curSum=p.barSegs.reduce((a,s)=>a+s.p,0);
+    const space=LIFE_GOAL-curSum;
+    if(rem>=space){
+      p.hearts++;
+      p.barSegs=[];
+      rem-=space;
+    }else{
+      p.barSegs.push({p:rem,c:color});
+      rem=0;
+    }
+  }
+}
 function submit(p,text,reply){
   if(PS.popping||Date.now()>PS.endsAt+400)return;
   const q=FRAGEN[PS.qi],t=pruefe(q,text);
@@ -1019,13 +1064,12 @@ function submit(p,text,reply){
   }
   const key=PS.qi+':'+norm(t.name);
   if(PS.used.some(u=>u.k===key))return reply({t:'REJECT',why:'dup',text,name:t.name});
-  const pts=T[t.t].p,extra=Math.floor((p.pts+pts)/300)>Math.floor(p.pts/300);
+  const pts=T[t.t].p,col=T[t.t].c;
   PS.used.push({k:key,q:PS.qi,n:t.name});
-  p.pts+=pts;if(extra)p.hearts++;
-  PS.msg=`✨ ${p.name}: ${t.name}${t.korr?' (autokorrigiert)':''} (+${pts} Pkt)${extra?' · 🎉 +1 Extraleben!':''}`;
+  p.pts+=pts;
+  addBarPoints(p,pts,col);
   if(++PS.qCount>=PS.qTarget){
     neueFrage();
-    PS.msg+=' · 🔄 Neue Frage!';
   }
   hostNext();setTurn();bc();
 }
@@ -1037,17 +1081,17 @@ function hostTickStart(){
     const p=PS.players[PS.turn];
     PS.popping=true;
     p.hearts--;
-    PS.msg=`💥 POP! Der Kugelfisch ist bei ${p.name} geplatzt! (-1 Leben)`;
     if(p.hearts<=0){
       p.alive=false;
-      PS.msg+=` 💀 ${p.name} ist ausgeschieden!`;
     }
     bc();
     clearTimeout(popTimeout);
     popTimeout=setTimeout(()=>{
       if(!PS||PS.status!=='play')return;
       if(!finish()){
-        neueFrage();
+        if(++PS.qCount>=PS.qTarget){
+          neueFrage();
+        }
         hostNext();
         setTurn();
       }
@@ -1140,17 +1184,19 @@ function renderSpiel(){
       const x=50 + radiusPct*Math.cos(angleRad);
       const y=50 + radiusPct*Math.sin(angleRad);
       const isTurn=i===PS.turn;
+      const segs=(p.barSegs||[]).map(s=>`<span style="width:${(s.p/LIFE_GOAL*100).toFixed(1)}%;background:${s.c}"></span>`).join('');
       return `<div class="arena-seat${isTurn?' active':''}${p.alive?'':' out'}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%">
-        <span class="seat-name">${p.online?'':'⚠ '}${esc(p.name)}${p.id===PID?' (du)':''}</span>
+        ${playerFishSvg(i)}
+        <span class="seat-name">${p.online?'':'⚠ '}${esc(p.name)}</span>
         <span class="seat-hearts">${p.alive?'♥'.repeat(Math.min(p.hearts,10)):'💀'}</span>
-        <span class="seat-pts">${p.pts} Pkt</span>
+        ${p.alive?`<div class="life-bar" title="Fortschritt zum nächsten Leben">${segs}</div>`:''}
       </div>`;
     }).join('');
 
     app.innerHTML=`<div class="hud">
       <span>Raum <strong>${esc(PS.code)}</strong></span>
       <span id="tz" role="timer" style="font-weight:700;color:var(--glow)">22 s</span>
-      <span class="turn-counter">Antwort ${PS.qCount}/${PS.qTarget}</span>
+      <span class="turn-counter">Zug ${PS.qCount}/${PS.qTarget}</span>
     </div>
 
     <div class="card arena-card">
@@ -1165,19 +1211,11 @@ function renderSpiel(){
         ${seatsHtml}
       </div>
 
-      <p class="kat" style="text-align:center;margin-bottom:.2em">Kategorie: <strong>${esc(q.kat)}</strong> · Am Zug: <strong style="color:var(--glow)">${esc(cur.name)}${mine?' (du!)':''}</strong></p>
-      <h2 style="text-align:center">${q.frage}</h2>
-      <p class="regel" style="text-align:center">${q.regel}</p>
+      <h2 style="text-align:center;margin:.2em 0 .5em">${q.frage}</h2>
 
-      <input id="in" type="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="send" aria-label="Deine Antwort" placeholder="${PS.popping?'💥 Kugelfisch geplatzt …':(mine?'Deine Antwort …':(cur.alive&&!PS.players.find(p=>p.id===PID&&!p.alive)?'Warte auf '+esc(cur.name)+' …':'Du schaust zu …'))}"${mine?'':' disabled'}>
-      <p id="perr" class="more" role="status" style="min-height:1.4em;color:#ffb199;margin-bottom:.2em"></p>
+      <input id="in" type="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="send" aria-label="Deine Antwort" placeholder="${PS.popping?'💥 POP!':(mine?'Deine Antwort …':(cur.alive&&!PS.players.find(p=>p.id===PID&&!p.alive)?esc(cur.name)+' …':'Zuschauer'))}"${mine?'':' disabled'}>
+      <p id="perr" class="more" role="status" style="min-height:1.2em;color:#ffb199;margin:0 0 .3em"></p>
       <button class="btn" data-a="okParty"${mine?'':' disabled'}>Antwort absenden</button>
-    </div>
-
-    <div class="card">
-      <p id="pmsg" class="pts"></p>
-      <p class="kat" style="margin-top:.6em">Schon genannt in dieser Frage:</p>
-      <p id="pused" class="more" style="margin-bottom:0"></p>
     </div>
     <button class="btn sec" data-a="partyLeave">Raum verlassen</button>`;
 
@@ -1197,8 +1235,6 @@ function renderSpiel(){
     if(rot)rot.style.transform=`rotate(${activeAngleDeg.toFixed(1)}deg)`;
   }
 
-  document.getElementById('pmsg').textContent=PS.msg||'';
-  document.getElementById('pused').textContent=PS.used.filter(u=>u.q===PS.qi).map(u=>u.n).join(', ')||'Noch nichts.';
   updatePufferVisual();
 
   clearInterval(pTick);
