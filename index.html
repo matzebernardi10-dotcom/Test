@@ -896,7 +896,7 @@ const KI={
   on:load('tg_ki_on')!==false,
   model:'openai',
   timeout:8000,
-  proxy:'', /* HIER die Adresse deines Cloudflare Workers eintragen, z. B. 'https://tiefgang-ki.DEINNAME.workers.dev' (siehe ki-worker.js). Dann braucht kein Spieler etwas einzurichten. */
+  proxy:'https://young-wood-850c.matzebernardi10.workers.dev/', /* HIER die Adresse deines Cloudflare Workers eintragen, z. B. 'https://tiefgang-ki.DEINNAME.workers.dev' (siehe ki-worker.js). Dann braucht kein Spieler etwas einzurichten. */
   neg:{},   /* in dieser Sitzung abgelehnte Antworten, werden nicht erneut angefragt */
   cool:0,   /* bis wann der kostenlose Dienst pausiert (nach einer 429-Antwort) */
   err:false,
